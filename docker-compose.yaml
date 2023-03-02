@@ -1,0 +1,73 @@
+version: '3'
+
+#Each service runs in a seperate container
+services:
+
+  # #the name of the service
+  express-service:
+
+    #shorthand name for the container
+    container_name: single_page
+
+    #build path to the Dockerfile
+    build: .
+
+    #create a bind mount so local changes show up in the container
+    #for development (lots of changes - restarting the container would be slow)
+    volumes: 
+      - ./:/app
+
+    #map the ports <outside container>:<inside container>
+    ports: 
+      - "8000:8000"
+
+    #make sure the postgres-db service starts first
+    depends_on:
+        - postgres-db
+
+    #makes the value "prostgres-db" available in postgress.envDATABASE_HOST 
+    # in Node Server, so Pool connects to the container instead of localhost
+    environment:
+      DATABASE_HOST: "postgres-db"
+    
+    #Override the entrypoint in the Dockerfile
+    command: ["nodemon", "single_page.js"]
+
+  #the name of the service
+  postgres-db:
+    container_name: postgres-db
+    image: postgres:latest
+    restart: always
+    environment:
+        DATABASE_HOST: postgress-db
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: password
+        POSTGRES_PORT: 5432
+        POSTGRES_DB: petshop
+        PGDATA: /var/lib/postgresql/data
+    ports:
+        - "5432:5432"
+    volumes:
+      - pgdatasource:/var/lib/postgresql/data
+    
+  #the name of the service
+  pgAdmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgAdmin
+    restart: always
+    environment:
+        PGADMIN_DEFAULT_EMAIL: nplawton02@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+        - "8080:80"
+    volumes:
+         - pgAdmin-data:/var/lib/pgAdmin
+    depends_on:
+        - postgres-db
+
+volumes:
+  pgdatasource:
+  pgAdmin-data:
+
+networks:
+  default:
