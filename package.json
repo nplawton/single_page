@@ -24,6 +24,7 @@
   "homepage": "https://github.com/gSchool/fs-pet-shop#readme",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "express": "^4.14",
     "httpie": "^1.1.2",
     "morgan": "^1.10.0",
